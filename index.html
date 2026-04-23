@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Дикий Юг — Лаунж бар</title>
+    <style>
+        /* ----- БАЗА И ШРИФТЫ ----- */
+        @font-face {
+            font-family: 'IntrospectC';
+            src: url('IntrospectC.otf') format('opentype'),
+                 url('IntrospectC.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ПЛАВНАЯ ПРОКРУТКА ДЛЯ ВСЕГО САЙТА */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'IntrospectC', 'Courier New', monospace;
+            background: #0a0a0a;
+            padding: 20px 16px 50px;
+            min-height: 100vh;
+            color: #f5ede0;
+            position: relative;
+        }
+
+        /* ФИКСИРОВАННЫЙ ФОН, КОТОРЫЙ ОДИНАКОВО РАБОТАЕТ НА ВСЕХ УСТРОЙСТВАХ */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            /* Используем изображение в высоком качестве */
+            background: url('https://sun9-7.userapi.com/s/v1/ig2/ZZQ9fC2O6_00Sh9Q4NBbiDZs7edPqrT6E1oE_ojIxGXg6K-bKLIFJumx4nESZuHswPcAEtY0C3mjUB02rNh3S4eD.jpg?quality=95&as=32x48,48x72,72x108,108x162,160x240,240x360,360x540,480x720,540x810,640x960,720x1080,736x1104&from=bu&u=iaBDO9WcDNaMW317gfIjCE9WrjIj7NntISw32tIsxUc&cs=736x0') center/cover no-repeat;
+            background-attachment: fixed;
+            opacity: 0.85;
+            /* Плавный переход при скролле на iOS */
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
+
+        /* ДУБЛИРУЮЩИЙ ФОН ДЛЯ СТАРЫХ БРАУЗЕРОВ ИЛИ ПРОБЛЕМНЫХ УСТРОЙСТВ */
+        @supports (-webkit-touch-callout: inherit) {
+            body::before {
+                background-attachment: scroll;
+                background-position: center top;
+            }
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== НАВИГАЦИОННАЯ ШАПКА ===== */
+        .nav-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 12px 20px;
+            background: rgba(10, 8, 6, 0.85);
+            border-radius: 60px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(211, 156, 68, 0.4);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        /* Левая часть: название + подпись (кликабельная) с мягким свечением */
+        .nav-brand {
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Мягкое свечение, которое выходит за края букв */
+        .nav-brand h1 {
+            font-size: 2rem;
+            letter-spacing: 3px;
+            color: #e3b87c;
+            text-shadow:
+                0 0 8px rgba(227, 184, 124, 0.6),
+                0 0 15px rgba(227, 184, 124, 0.4),
+                0 0 25px rgba(227, 184, 124, 0.2),
+                3px 3px 0px #5a3a1a;
+            font-weight: normal;
+            line-height: 1.2;
+            transition: text-shadow 0.3s ease;
+        }
+
+        .nav-brand:hover h1 {
+            text-shadow:
+                0 0 12px rgba(227, 184, 124, 0.8),
+                0 0 20px rgba(227, 184, 124, 0.5),
+                0 0 30px rgba(227, 184, 124, 0.3),
+                3px 3px 0px #5a3a1a;
+        }
+
+        .nav-brand .lounge-bar {
+            font-size: 0.85rem;
+            color: #f5cfa0;
+            text-shadow:
+                0 0 5px rgba(227, 184, 124, 0.5),
+                0 0 10px rgba(227, 184, 124, 0.3),
+                1px 1px 0px #5a3a1a;
+            letter-spacing: 3px;
+            text-align: center;
+            transition: text-shadow 0.3s ease;
+        }
+
+        .nav-brand:hover .lounge-bar {
+            text-shadow:
+                0 0 8px rgba(227, 184, 124, 0.7),
+                0 0 15px rgba(227, 184, 124, 0.4),
+                1px 1px 0px #5a3a1a;
+        }
+
+        /* Правая часть: ссылки с эффектом "ковбойского кнута" */
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .nav-link {
+            color: #e3b87c;
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: 40px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            white-space: nowrap;
+            position: relative;
+            background: transparent;
+            border: none;
+        }
+
+        /* Эффект "ковбойского кнута" — подчёркивание снизу */
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #d49c44, #e3b87c, #d49c44);
+            border-radius: 2px;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 70%;
+        }
+
+        /* Подзаголовок "Наши предложения" */
+        .sub-header {
+            text-align: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid #2f2419;
+            padding-bottom: 20px;
+        }
+        .sub {
+            color: #b89a70;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* ----- КАРТОЧКИ КАТЕГОРИЙ ----- */
+        .category {
+            background: rgba(10, 8, 6, 0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 24px;
+            padding: 16px 20px;
+            margin-bottom: 40px;
+        }
+
+        .category h2 {
+            font-size: 1.6rem;
+            font-weight: normal;
+            border-left: 5px solid #d49c44;
+            padding-left: 14px;
+            margin-bottom: 20px;
+            color: #ecc897;
+        }
+
+        .subcategory-title {
+            font-size: 1.3rem;
+            margin: 32px 0 16px 0;
+            color: #e3b87c;
+            font-weight: normal;
+            border-bottom: 1px dashed #3e2e1f;
+            display: inline-block;
+        }
+
+        .predislovie-full {
+            margin: 20px 0;
+            padding: 16px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #bc9f7a;
+            font-style: italic;
+        }
+
+        /* ----- ЭЛЕМЕНТЫ МЕНЮ ----- */
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 12px 0;
+            border-bottom: 1px dashed #3e2e1f;
+            gap: 12px;
+        }
+        .item:last-child { border-bottom: none; }
+
+        .item-info { flex: 1; }
+        .item-name { font-size: 1.05rem; letter-spacing: 0.3px; }
+        .item-desc {
+            font-size: 0.75rem;
+            color: #bc9f7a;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        .price-volume {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-shrink: 0;
+            justify-content: flex-end;
+            min-width: 110px;
+        }
+        .item-price {
+            color: #e3b87c;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            text-align: right;
+            width: 65px;
+        }
+        .item-volume {
+            font-size: 0.7rem;
+            color: #9b7b58;
+            white-space: nowrap;
+            width: 45px;
+            text-align: left;
+        }
+
+        /* ----- КОНТАКТЫ / ОТЗЫВЫ ----- */
+        .contact-item, .reviews-block { text-align: center; }
+        .contact-item {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-bottom: 1px dashed #3e2e1f;
+        }
+        .contact-label {
+            width: 100px;
+            color: #b89a70;
+            font-size: 0.95rem;
+        }
+        .contact-value { flex: 1; color: #f5ede0; }
+        .contact-link {
+            color: #e3b87c;
+            text-decoration: none;
+            border-bottom: 1px dotted;
+        }
+        .reviews-text {
+            color: #bc9f7a;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .reviews-button {
+            display: inline-block;
+            background: #d49c44;
+            color: #0a0a0a;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            transition: 0.2s;
+            border: 1px solid #e3b87c;
+        }
+        .reviews-button:hover {
+            background: #e3b87c;
+            transform: scale(1.02);
+        }
+
+        /* ----- ПЛАВАЮЩАЯ КНОПКА ----- */
+        .floating-booking {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #d49c44;
+            color: #0a0a0a;
+            text-decoration: none;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        .floating-booking:hover { transform: scale(1.03); background: #e3b87c; }
+
+        /* ----- МОДАЛЬНОЕ ОКНО (ПЛАВНОЕ) ----- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0);
+            backdrop-filter: blur(0px);
+            transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+        }
+
+        .modal.show {
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(10, 8, 6, 0.95);
+            margin: 10% auto;
+            padding: 25px 20px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #d49c44;
+            position: relative;
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 28px;
+            color: #e3b87c;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .close-modal:hover {
+            color: #d49c44;
+            transform: scale(1.1);
+        }
+
+        .modal-title {
+            color: #e3b87c;
+            font-size: 1.6rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            color: #b89a70;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: #1e1a14;
+            border: 1px solid #3e2e1f;
+            border-radius: 12px;
+            color: #f5ede0;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #d49c44;
+        }
+        .submit-btn {
+            width: 100%;
+            background: #d49c44;
+            color: #0a0a0a;
+            font-weight: bold;
+            padding: 12px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .submit-btn:hover { background: #e3b87c; transform: scale(1.02); }
+        .form-message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #bc9f7a;
+        }
+        .footer-note {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.7rem;
+            color: #8b7358;
+            border-top: 1px solid #2f2419;
+            padding-top: 24px;
+        }
+
+        /* ----- АДАПТИВ ----- */
+        @media (max-width: 650px) {
+            .nav-menu {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nav-brand {
+                text-align: center;
+            }
+            .nav-links {
+                justify-content: center;
+            }
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            .nav-brand h1 {
+                font-size: 1.6rem;
+            }
+            .nav-brand .lounge-bar {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .nav-links { gap: 8px; }
+            .category h2 { font-size: 1.3rem; }
+            .item { flex-wrap: wrap; }
+            .price-volume { width: 100%; justify-content: flex-start; margin-top: 5px; }
+            .modal-content { margin: 20% auto; width: 95%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- НАВИГАЦИОННАЯ ШАПКА -->
+<div class="nav-menu">
+    <div class="nav-brand" id="homeLink">
+        <h1>ДИКИЙ ЮГ</h1>
+        <div class="lounge-bar">лаунж бар</div>
+    </div>
+    <div class="nav-links">
+        <a href="#menu-section" class="nav-link">Меню</a>
+        <a href="#promo-section" class="nav-link">Акции</a>
+        <a href="#contacts-section" class="nav-link">Контакты</a>
+        <a href="#reviews-section" class="nav-link">Отзывы</a>
+    </div>
+</div>
+
+<div class="container" id="menu-section">
+    <div class="sub-header">
+        <div class="sub">Наши предложения</div>
+    </div>
+
+    <!-- КАЛЬЯНЫ -->
+    <div class="category">
+        <h2>Кальяны</h2>
+        <div class="item"><div class="item-info"><div class="item-name">Классический кальян</div><div class="item-desc">Любой вкус до 17:00</div></div><div class="item-price">1 200 ₽</div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Классический кальян</div><div class="item-desc">После 17:00</div></div><div class="item-price">1 500 ₽</div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Кальян на фруктовой чаше</div><div class="item-desc">До 17:00</div></div><div class="item-price">1 500 ₽</div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Кальян на фруктовой чаше</div><div class="item-desc">После 17:00</div></div><div class="item-price">1 850 ₽</div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикие миксы</div><div class="item-desc">Авторская сборка</div></div><div class="item-price">2 000 ₽</div></div>
+    </div>
+
+    <!-- ДИКИЕ МИКСЫ -->
+    <div class="category">
+        <h2>Дикие миксы</h2>
+        <div class="subcategory-title">Знакомая классика</div>
+        <div class="item"><div class="item-info"><div class="item-name">Отпускник</div><div class="item-desc">Нежное сочетание тропических фруктов: персик, манго, маракуйя, чизкейк/масло</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Уверенный южанин</div><div class="item-desc">Фруктовый сбор с добавлением крепкой линейки грейпфрута</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Смесь шамана</div><div class="item-desc">Травянистые вкусы, холодок, мята</div></div></div>
+
+        <div class="subcategory-title">Дикие позиции</div>
+        <div class="predislovie-full">На Диком Юге еда и напитки всегда были частью одного целого. Степные травы, копчёное мясо на костре, свежий хлеб из печи и терпкие настои — всё это смешивалось в ритме кочевой жизни. Выбирайте свой — и почувствуйте вкус настоящего Дикого Юга.</div>
+
+        <div class="item"><div class="item-info"><div class="item-name">Дикий аперитив</div><div class="item-desc">Гиннес, оливка, вишня</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикий ланч</div><div class="item-desc">Томагавк, томатное гозе</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикий десерт</div><div class="item-desc">Сыр, банан, манго</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикий бранч</div><div class="item-desc">Сыр, томат, салями</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикий пир</div><div class="item-desc">Виски, оливка</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Ковбойский кофе</div><div class="item-desc">Кофе, корица, кокосовые сливки</div></div></div>
+    </div>
+
+    <!-- ЧАЙ -->
+    <div class="category">
+        <h2>Дикий чай</h2>
+        <div class="item"><div class="item-info"><div class="item-name">Сенча, Ассам, Молочный улун, Гибискус</div></div><div class="price-volume"><div class="item-price">350 ₽</div><div class="item-volume">0.5 л</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикие шишки</div></div><div class="price-volume"><div class="item-price">450 ₽</div><div class="item-volume">0.5 л</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикий чай</div></div><div class="price-volume"><div class="item-price">650 ₽</div><div class="item-volume">0.5 л</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Мёд, лимон, мята</div></div><div class="price-volume"><div class="item-price">50 ₽</div><div class="item-volume"></div></div></div>
+    </div>
+
+    <!-- ПИВО, СНЕКИ, НАПИТКИ, КОКТЕЙЛИ -->
+    <div class="category">
+        <h2>Пиво & Сидр</h2>
+        <div class="item"><div class="item-info"><div class="item-name">Корона Экстра</div></div><div class="price-volume"><div class="item-price">350 ₽</div><div class="item-volume">0.33</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Будвайзер Будвар</div></div><div class="price-volume"><div class="item-price">400 ₽</div><div class="item-volume">0.33</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Радебергер Пилснер</div></div><div class="price-volume"><div class="item-price">300 ₽</div><div class="item-volume">0.33</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Гиннес</div></div><div class="price-volume"><div class="item-price">450 ₽</div><div class="item-volume">0.4</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Атомная прачечная ИПА</div></div><div class="price-volume"><div class="item-price">400 ₽</div><div class="item-volume">0.5</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Сидр ВитаСид(смородина)</div></div><div class="price-volume"><div class="item-price">250 ₽</div><div class="item-volume">0.45</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Морт Сюбите(вишня)</div></div><div class="price-volume"><div class="item-price">400 ₽</div><div class="item-volume">0.25</div></div></div>
+
+        <div class="subcategory-title">Снеки</div>
+        <div class="item"><div class="item-info"><div class="item-name">Суджук</div></div><div class="price-volume"><div class="item-price">250 ₽</div><div class="item-volume">50 г</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Арахис соленый</div></div><div class="price-volume"><div class="item-price">150 ₽</div><div class="item-volume">65 г</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Фисташки</div></div><div class="price-volume"><div class="item-price">300 ₽</div><div class="item-volume">90 г</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Курица/Говядина/Оленина сушеная</div></div><div class="price-volume"><div class="item-price">250 ₽</div><div class="item-volume">25 г</div></div></div>
+
+        <div class="subcategory-title">Прохладительные напитки</div>
+        <div class="item"><div class="item-info"><div class="item-name">Добрый кола / б/с / апельсин</div></div><div class="price-volume"><div class="item-price">150 ₽</div><div class="item-volume">0.3</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Биттер лимон</div></div><div class="price-volume"><div class="item-price">150 ₽</div><div class="item-volume">0.33</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Бёрн Оригинал</div></div><div class="price-volume"><div class="item-price">170 ₽</div><div class="item-volume">0.45</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Вода (газ/негаз)</div></div><div class="price-volume"><div class="item-price">50 ₽</div><div class="item-volume">0.5</div></div></div>
+
+        <div class="subcategory-title">Коктейли</div>
+        <div class="item"><div class="item-info"><div class="item-name">Молочный коктейль</div><div class="item-desc">Мороженое + молоко + чокопай / oreo</div></div><div class="price-volume"><div class="item-price">450 ₽</div><div class="item-volume">0.5</div></div></div>
+        <div class="item"><div class="item-info"><div class="item-name">Дикий молочник</div><div class="item-desc">Протеиновый молочный коктейль</div></div><div class="price-volume"><div class="item-price">450 ₽</div><div class="item-volume">0.5</div></div></div>
+    </div>
+
+    <!-- АКЦИИ (ПУСТОЙ БЛОК) -->
+    <div class="category" id="promo-section">
+        <h2>🔥 Акции</h2>
+    </div>
+
+    <!-- КОНТАКТЫ -->
+    <div class="category" id="contacts-section">
+        <h2>Контакты</h2>
+        <div class="contact-item"><div class="contact-label">Адрес:</div><div class="contact-value">ул. Цветочная 32, Сочи, Россия</div></div>
+        <div class="contact-item"><div class="contact-label">Телефон:</div><div class="contact-value"><a href="tel:+79182073111" class="contact-link">+7 (918) 207-31-11</a></div></div>
+        <div class="contact-item"><div class="contact-label">Telegram:</div><div class="contact-value"><a href="https://t.me/+79182073111" class="contact-link">@dikiyug</a></div></div>
+        <div class="contact-item"><div class="contact-label">Instagram:</div><div class="contact-value"><a href="https://instagram.com/_wild_south__" class="contact-link">@_wild_south__</a></div></div>
+    </div>
+
+    <!-- ОТЗЫВЫ -->
+    <div class="category" id="reviews-section">
+        <h2>Отзывы</h2>
+        <div class="reviews-text">Наши гости оставляют тёплые слова о «Диком Юге». Хотите узнать, что о нас говорят?</div>
+        <a href="https://yandex.ru/maps/org/dikiy_yug/70481784449/reviews/" class="reviews-button" target="_blank">Читать отзывы на Яндекс.Картах</a>
+    </div>
+
+    <div class="footer-note">
+        Крепость и сочетания миксов можно менять на ваш вкус.<br>
+        По вопросам рекламы и аренды уточняйте у сотрудника или по номеру +7 (918) 207-31-11
+    </div>
+</div>
+
+<!-- ПЛАВАЮЩАЯ КНОПКА БРОНИРОВАНИЯ -->
+<a href="#" class="floating-booking">Забронировать столик</a>
+
+<div id="bookingModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3 class="modal-title">Забронировать столик</h3>
+        <form id="bookingForm">
+            <div class="form-group"><label>Имя</label><input type="text" id="name" required placeholder="Как к вам обращаться?"></div>
+            <div class="form-group"><label>Телефон</label><input type="tel" id="phone" required placeholder="+7 (___) ___-__-__"></div>
+            <div class="form-group"><label>Дата</label><input type="date" id="date" required></div>
+            <div class="form-group"><label>Время</label><input type="time" id="time" required></div>
+            <div class="form-group"><label>Количество гостей</label><select id="guests" required><option value="">Выберите</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10+</option></select></div>
+            <button type="submit" class="submit-btn">Отправить заявку</button>
+        </form>
+        <div id="formMessage" class="form-message"></div>
+    </div>
+</div>
+
+<script>
+    // Кликабельный блок "Дикий Юг" + "лаунж бар" — отправляет наверх
+    const homeLink = document.getElementById('homeLink');
+    if (homeLink) {
+        homeLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // Плавная прокрутка для якорных ссылок меню
+    document.querySelectorAll('.nav-link[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href === "#" || href === "#menu-section" || href === "#promo-section" || href === "#contacts-section" || href === "#reviews-section") {
+                if (href !== "#") {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(href);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            }
+        });
+    });
+
+    // ПЛАВНОЕ МОДАЛЬНОЕ ОКНО
+    const modal = document.getElementById('bookingModal');
+    const closeBtn = document.querySelector('.close-modal');
+    const form = document.getElementById('bookingForm');
+    const msgBox = document.getElementById('formMessage');
+    const openBtns = document.querySelectorAll('.floating-booking');
+
+    const openModal = (e) => {
+        e.preventDefault();
+        modal.style.display = 'block';
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+    };
+
+    const closeModal = () => {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            msgBox.innerHTML = '';
+            form.reset();
+        }, 300);
+    };
+
+    openBtns.forEach(btn => btn.addEventListener('click', openModal));
+    closeBtn.addEventListener('click', closeModal);
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const date = document.getElementById('date').value;
+        const time = document.getElementById('time').value;
+        const guests = document.getElementById('
